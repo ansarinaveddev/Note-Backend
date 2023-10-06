@@ -5,7 +5,12 @@ const User = require("../models/User");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
+const { config } = require('dotenv');
+const getJwtToken = require('../helpers/getJwtToken');
+const cookieToken = require('../helpers/cookieToken');
 
+router.use(cors({credentials: true})); 
 router.use(cookieParser());
 require("dotenv").config();
 
@@ -77,22 +82,7 @@ router.post('/login', async (req, res) => {
                 name: user.name,
                 email: user.email
             }
-
-            // create a new token
-            const token = await jwt.sign(tokenData, process.env.JWT_SECRET, {
-                expiresIn: '1d'
-            })
-
-
-            res.cookie("token", tokenData);
-
-            console.log(res.cookie())
-
-            res.status(200).json({
-                message: "Login successful",
-                user,
-                token
-            })
+            cookieToken(tokenData, res);
         }
         else{
             res.status(401).json({
